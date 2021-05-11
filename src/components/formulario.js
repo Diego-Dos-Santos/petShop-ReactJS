@@ -1,6 +1,8 @@
 import React, { Fragment, useState } from 'react';
+import { v4 as uuidv4 } from 'uuid';
+import PropTypes from 'prop-types';
 
-const Formulario = () => {
+const Formulario = ({crearCita}) => {
 
     // CREA STATE DE CITAS 
 
@@ -11,6 +13,10 @@ const Formulario = () => {
         hora: '',
         sintomas: ''
     }) 
+
+    // STATE PARA VALIDACIÓN 
+
+    const [error, actualizarError] = useState(false)
 
     // Función que se ejecuta cuando el usuario escribe en el input
 
@@ -25,11 +31,52 @@ const Formulario = () => {
 
     const {mascota, proprietario, fecha, hora, sintomas} = cita;
 
+    // Cuando el usuario presiona agragar cita
+
+    const submitCita = e => {
+        e.preventDefault();
+
+        // Validar 
+
+        if (mascota.trim() === '' || proprietario.trim() === '' || fecha.trim() === '' || hora.trim() === '' || sintomas.trim() === '') {
+            actualizarError(true)
+            return;
+        }
+
+        // Eliminar aviso previo 
+
+        actualizarError(false);
+
+        // Asignar ID
+
+        cita.id = uuidv4();
+
+        console.log(cita)
+
+        // Crear Cita 
+
+        crearCita(cita);
+        
+        // Reiniciar Cita
+
+        actualizarCita({
+            mascota: '',
+            proprietario: '',
+            fecha: '',
+            hora: '',
+            sintomas: ''
+        })
+    }
+
     return (
         <Fragment>
             <h2 className="title">Crear Cita</h2>
 
-            <form>
+            { error ? <p class="alerta-error">Todos los campos son obligatorios</p>  : null  }
+
+            <form
+                onSubmit={submitCita}
+            >
                 <label>Mascota</label>
                 <input 
                     type="text"
@@ -85,6 +132,10 @@ const Formulario = () => {
 
 
      );
+}
+
+Formulario.propTypes = {
+    crearCita: PropTypes.func.isRequired
 }
  
 export default Formulario;
